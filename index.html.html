@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SkinXchange — Aurora/Midnight Theme (Full‑Width Dark)</title>
+  <style>
+    /* =============================
+       Aurora ↔ Midnight theming
+       ============================= */
+    :root{
+      /* Aurora (light) */
+      --bg:#f6f8fb;            /* page background */
+      --bg-grad-1:#f6f8fb;     /* subtle gradient colors */
+      --bg-grad-2:#eef3ff;
+      --surface:#ffffff;       /* cards */
+      --text:#1c2430;          /* primary text */
+      --muted:#64748b;         /* secondary text */
+      --border:#e6e9f2;        /* borders */
+      --subtle:#eff3f8;        /* image placeholders */
+      --accent:#6c8cff;        /* periwinkle */
+      --accent-2:#62d6c8;      /* seafoam */
+      --accent-3:#caa6ff;      /* lilac */
+      --accent-text:#0b1220;   /* dark text on bright accents */
+      --danger:#dc2626;
+      --radius:16px;
+      --shadow:0 10px 30px rgba(20,32,66,.08);
+    }
+
+    /* Midnight (soft dark, now deeper + default) */
+    body[data-theme="midnight"]{
+      --bg:#0a0e19;            /* darker base */
+      --bg-grad-1:#0a0e19;
+      --bg-grad-2:#0b1530;     /* deeper blue tint */
+      --surface:#12192c;       /* cards a bit darker */
+      --text:#eaf1ff;
+      --muted:#a7b4cf;
+      --border:#202a46;
+      --subtle:#0e1424;
+      --accent:#7bd7c9;
+      --accent-2:#95a4ff;
+      --accent-3:#bd93f9;
+      --accent-text:#0c1022;
+      --danger:#ef4444;
+      --shadow:0 12px 34px rgba(3,10,28,.5);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%; width:100%;}
+    body{
+      margin:0;
+      font:15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text);
+      /* Full-window dark background */
+      background:
+        radial-gradient(1200px 600px at 10% -10%, var(--bg-grad-2), transparent 60%),
+        radial-gradient(1000px 500px at 120% -20%, color-mix(in hsl, var(--accent-3) 30%, transparent), transparent 50%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    header{
+      position:sticky;top:0;z-index:10;
+      background:color-mix(in hsl, var(--surface) 92%, transparent);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--border);
+    }
+
+    /* Full-bleed layout */
+    .container{width:100%; max-width:none; margin:0; padding:12px 24px}
+    main{padding-bottom:72px; min-height:calc(100vh - 64px); width:100%;}
+    .row{display:flex;gap:12px;align-items:center}
+    .mr-auto{margin-right:auto}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s ease, box-shadow .2s ease, background .2s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn.primary{
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color:transparent;color:var(--accent-text);
+    }
+    .btn.primary:hover{filter:saturate(1.1)}
+    .btn.ghost{background:transparent}
+    .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+
+    /* Chips & badges */
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:color-mix(in hsl, var(--accent) 18%, var(--surface));color:var(--text);font-size:12px;border:1px solid var(--border)}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:color-mix(in hsl, var(--accent-2) 18%, var(--surface));border:1px solid var(--border);font-size:13px}
+
+    .grid{display:grid;gap:16px}
+    .cards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+
+    /* Cards */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);position:relative}
+    .card .hdr{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .card .hdr .title{font-weight:650;font-size:14px;display:flex;justify-content:space-between;gap:8px}
+    .card .hdr .sub{color:var(--muted);font-size:12px;margin-top:4px}
+    .card .body{padding:14px 16px}
+    .card .ftr{padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+
+    .imgbox{aspect-ratio:16/9;background:var(--subtle);border-radius:12px;overflow:hidden;position:relative}
+    .imgbox img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.02)}
+
+    /* Hover preview overlay */
+    .preview{position:absolute;inset:0;background:linear-gradient(to top, rgba(12,19,39,.7), rgba(12,19,39,.0));display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:12px;opacity:0;transition:opacity .18s ease;z-index:2;pointer-events:none}
+    .card:hover .preview{opacity:1}
+    .preview .meta{display:flex;gap:8px;flex-wrap:wrap}
+    .preview .btn{pointer-events:auto}
+
+    .muted{color:var(--muted)}
+    .sep{height:1px;background:var(--border);margin:16px 0}
+
+    /* Tabs */
+    .tablist{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+    .tablist button{padding:12px;border:0;background:var(--surface);cursor:pointer;transition:background .2s ease}
+    .tablist button[aria-selected="true"]{background:color-mix(in hsl, var(--accent-2) 10%, var(--surface))}
+
+    .hidden{display:none}
+
+    /* Balance bar */
+    .balance{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:center}
+    .balance .stat{display:flex;gap:8px;align-items:center;padding:10px 12px;border:1px dashed var(--border);border-radius:12px;background:color-mix(in hsl, var(--accent) 6%, var(--surface))}
+    .stat .label{color:var(--muted)}
+    .right{justify-content:flex-end}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:12px}
+    thead{color:var(--muted)}
+    tbody tr{border-top:1px solid var(--border)}
+    tbody tr:hover{background:color-mix(in hsl, var(--accent) 6%, var(--surface))}
+
+    /* Toasts */
+    .toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:100}
+    .toast{background:linear-gradient(135deg, #0b1220, #1b2a50);color:#fff;padding:12px 14px;border-radius:12px;box-shadow:var(--shadow);max-width:360px;border:1px solid rgba(255,255,255,.08)}
+    body[data-theme="midnight"] .toast{background:linear-gradient(135deg, #10182e, #0e2233)}
+    .toast small{opacity:.86}
+
+    /* Dialog */
+    dialog{border:none;border-radius:14px;box-shadow:0 20px 64px rgba(0,0,0,.35);padding:0;background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    dialog::backdrop{background:rgba(0,0,0,.45)}
+    .dlg-hdr{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:650}
+    .dlg-body{padding:14px 16px}
+
+    /* Right-side sheet for item details */
+    .sheet{margin:0;max-width:980px;width:min(100%,980px);height:100dvh;position:fixed;top:0;right:0;border-radius:0;transform:translateX(100%);transition:transform .22s ease}
+    .sheet[open]{transform:translateX(0)}
+    .sheet .dlg-body{display:grid;gap:16px;grid-template-columns:1.1fr .9fr}
+    @media (max-width: 980px){ .sheet .dlg-body{grid-template-columns:1fr} }
+
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    input[type="text"], input[type="number"]{border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:var(--surface);color:var(--text)}
+
+    /* Rarity color accents */
+    .rar-Classified{background:linear-gradient(135deg, #ff9bd4, #e48bff)}
+    .rar-Covert{background:linear-gradient(135deg, #ff7070, #ff9a6b)}
+    .rar-Contraband{background:linear-gradient(135deg, #ffcd77, #ffa94d)}
+    .rar-Restricted{background:linear-gradient(135deg, #b889ff, #8ea6ff)}
+    .rar-Mil-Spec{background:linear-gradient(135deg, #79b3ff, #59a2ff)}
+    .rar-Industrial{background:linear-gradient(135deg, #cbd5e1, #a8b1c7)}
+    .rar-Consumer{background:linear-gradient(135deg, #e2e8f0, #cbd5e1)}
+
+    .rar{color:#0b1220;border:none}
+    .pill{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:color-mix(in hsl, var(--accent-2) 8%, var(--surface));cursor:pointer}
+    .pill[aria-pressed="true"]{background:color-mix(in hsl, var(--accent-2) 20%, var(--surface));}
+  </style>
+</head>
+<body data-theme="midnight">
+  <header>
+    <div class="container row">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));display:grid;place-items:center;color:var(--accent-text);font-weight:750;box-shadow:var(--shadow)">S</div>
+      <div class="mr-auto">
+        <div style="font-weight:700;letter-spacing:.2px">SkinXchange</div>
+        <div class="muted" style="font-size:12px">Midnight — full‑width, dark background</div>
+      </div>
+      <div class="chip" title="Switch color theme">
+        <span style="width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg, var(--accent), var(--accent-2))"></span>
+        <button id="themeToggle" class="btn ghost" style="padding:0;border:none;box-shadow:none">Toggle theme</button>
+      </div>
+      <button class="btn">Docs</button>
+      <button class="btn primary">Connect Steam</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section style="padding:12px 0">
+      <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="card"><div class="hdr"><div class="title">Marketplace</div><div class="sub">Price-forward tiles with hover preview.</div></div></div>
+        <div class="card"><div class="hdr"><div class="title">Orderbook</div><div class="sub">Bids reserve funds; instant fill on cross.</div></div></div>
+        <div class="card"><div class="hdr"><div class="title">Safety</div><div class="sub">Escrow flow + anti‑fraud checklist in Trades.</div></div></div>
+      </div>
+    </section>
+
+    <div class="tablist" role="tablist" aria-label="Views">
+      <button role="tab" id="tabbtn-market" aria-controls="tab-market" aria-selected="true">Market</button>
+      <button role="tab" id="tabbtn-orderbook" aria-controls="tab-orderbook" aria-selected="false">Orderbook</button>
+      <button role="tab" id="tabbtn-inventory" aria-controls="tab-inventory" aria-selected="false">My Inventory</button>
+      <button role="tab" id="tabbtn-trades" aria-controls="tab-trades" aria-selected="false">Trades & Security</button>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="body">
+        <div class="balance" id="balanceBar"></div>
+      </div>
+    </div>
+
+    <section id="tab-market" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-market">
+      <div class="grid" style="grid-template-columns:280px 1fr; margin-top:16px; gap:16px">
+        <aside>
+          <div class="card">
+            <div class="hdr"><div class="title">Filters</div><div class="sub">Refine your search</div></div>
+            <div class="body">
+              <div class="field">
+                <label for="q">Search</label>
+                <input id="q" type="text" placeholder="Search skins, weapons, exterior..."/>
+              </div>
+              <div class="muted" style="font-size:12px">(Add weapon/exterior/price filters here)</div>
+            </div>
+          </div>
+        </aside>
+        <div id="marketGrid" class="grid cards"></div>
+      </div>
+    </section>
+
+    <section id="tab-orderbook" class="tab-panel hidden" role="tabpanel" aria-labelledby="tabbtn-orderbook" style="margin-top:16px">
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="card">
+          <div class="hdr"><div class="title">Orderbook</div><div class="sub">Top asks (from listings) and your bids.</div></div>
+          <div class="body" style="overflow:auto">
+            <table>
+              <thead><tr><th class="text-left">Skin</th><th class="text-right">Best Ask</th><th class="text-right">Your Quick Bid</th><th class="text-right">Action</th></tr></thead>
+              <tbody id="bookRows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hdr"><div class="title">Your Orders</div><div class="sub">Funds for open bids are reserved until fill/cancel.</div></div>
+          <div class="body" style="overflow:auto">
+            <table>
+              <thead><tr><th>Side</th><th>Skin</th><th class="text-right">Price</th><th class="text-right">Qty</th><th class="text-right">Status</th></tr></thead>
+              <tbody id="orderRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-inventory" class="tab-panel hidden" role="tabpanel" aria-labelledby="tabbtn-inventory" style="margin-top:16px">
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="card">
+          <div class="hdr"><div class="title">Your Items</div><div class="sub">List items for sale with an Ask price.</div></div>
+          <div class="body" id="inventoryList" class="grid"></div>
+        </div>
+        <div class="card">
+          <div class="hdr"><div class="title">Fees & Notes</div><div class="sub">Maker/Taker demo for trading aesthetic.</div></div>
+          <div class="body">
+            <div class="row" style="justify-content:space-between"><span>Maker fee</span><span>2.0%</span></div>
+            <div class="row" style="justify-content:space-between"><span>Taker fee</span><span>4.5%</span></div>
+            <div class="row" style="justify-content:space-between"><span>Withdrawal hold</span><span>24h (anti‑fraud)</span></div>
+            <p class="muted" style="font-size:12px">Open bids reserve funds until filled/cancelled. Asks move the item into escrow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-trades" class="tab-panel hidden" role="tabpanel" aria-labelledby="tabbtn-trades" style="margin-top:16px">
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="card">
+          <div class="hdr"><div class="title">Create Trade Offer</div><div class="sub">Enter your Steam Trade URL to receive items from escrow.</div></div>
+          <div class="body">
+            <div class="field">
+              <label for="tradeUrl">Steam Trade URL</label>
+              <input id="tradeUrl" type="text" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..."/>
+            </div>
+            <button class="btn primary" id="sendOffer">Send Offer</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="hdr"><div class="title">Security Checklist</div><div class="sub">Good practices before wiring a backend.</div></div>
+          <div class="body">
+            <ul>
+              <li>OpenID sign‑in + verify Trade URL ownership.</li>
+              <li>Bot on isolated account; rotate keys; rate limits.</li>
+              <li>Escrow: custody wallet or timed P2P swaps.</li>
+              <li>Risk: price outliers, velocity, device fingerprinting.</li>
+              <li>Webhooks for trade status; retries with idempotency keys.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="sep"></div>
+    <footer class="muted" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>Demo only — not affiliated with Valve/Steam/Skinport.</div>
+      <div class="row" style="gap:12px"><a>Terms</a><a>Privacy</a><a>Support</a></div>
+    </footer>
+  </main>
+
+  <!-- Bid dialog -->
+  <dialog id="bidDialog">
+    <div class="dlg-hdr">Place Bid</div>
+    <div class="dlg-body">
+      <div class="field">
+        <label for="bidPrice">Price</label>
+        <input id="bidPrice" type="number" step="0.01" min="0" />
+      </div>
+      <div class="row" style="justify-content:flex-end;gap:8px">
+        <button class="btn" id="cancelBid">Cancel</button>
+        <button class="btn primary" id="confirmBid">Submit</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Item details sheet (right-side) -->
+  <dialog id="itemSheet" class="sheet">
+    <div class="dlg-hdr" style="display:flex;align-items:center;gap:12px">
+      <div id="sheetTitle" style="font-weight:700"></div>
+      <span id="sheetRarity" class="badge"></span>
+      <div class="mr-auto"></div>
+      <button id="closeSheet" class="btn">Close</button>
+    </div>
+    <div class="dlg-body">
+      <div>
+        <div class="imgbox"><img id="sheetImg" alt=""></div>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:12px">
+          <div class="card"><div class="body"><div class="muted" style="font-size:12px">Lowest Ask</div><div id="sheetLowest" style="font-weight:750;margin-top:4px">—</div></div></div>
+          <div class="card"><div class="body"><div class="muted" style="font-size:12px">Highest Bid</div><div id="sheetHighest" style="font-weight:750;margin-top:4px">—</div></div></div>
+          <div class="card"><div class="body"><div class="muted" style="font-size:12px">24h Trades</div><div id="sheetVol" style="font-weight:750;margin-top:4px">—</div></div></div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="body">
+            <div class="row" style="flex-wrap:wrap;gap:8px">
+              <button id="toggleST" class="pill" aria-pressed="false">StatTrak®</button>
+              <div class="muted" style="font-size:12px">Exterior:</div>
+              <div id="extPills" class="row" style="flex-wrap:wrap;gap:6px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="hdr"><div class="title">Order Book <span id="variantLabel" class="badge" style="margin-left:8px"></span></div><div class="sub">Per-variant book like FN/MW/FT/WW/BS and StatTrak.</div></div>
+          <div class="body">
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+              <div>
+                <div class="muted" style="font-size:12px;margin-bottom:6px">Top Asks</div>
+                <table><thead><tr><th>Price</th><th>Qty</th></tr></thead><tbody id="sheetAsks"></tbody></table>
+              </div>
+              <div>
+                <div class="muted" style="font-size:12px;margin-bottom:6px">Top Bids</div>
+                <table><thead><tr><th>Price</th><th>Qty</th></tr></thead><tbody id="sheetBids"></tbody></table>
+              </div>
+            </div>
+          </div>
+          <div class="ftr">
+            <div class="row" style="gap:8px">
+              <button class="btn" id="sheetBidMinus">−</button>
+              <input id="sheetBidInput" type="number" step="0.01" min="0" style="width:120px"/>
+              <button class="btn" id="sheetBidPlus">+</button>
+            </div>
+            <div class="row" style="gap:8px">
+              <button class="btn" id="sheetPlaceBid">Place Bid</button>
+              <button class="btn primary" id="sheetBuyNow">Buy Best Ask</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script>
+    // ---------- Data ----------
+    const listings = [
+      { id:"1", name:"AK-47 | Redline", weapon:"AK-47", exterior:"Field-Tested", float:0.23, price:42.5, img:"https://picsum.photos/seed/akredline/640/360", rarity:"Classified" },
+      { id:"2", name:"AWP | Asiimov", weapon:"AWP", exterior:"Well-Worn", float:0.43, price:118.0, img:"https://picsum.photos/seed/awpasiimov/640/360", rarity:"Covert" },
+      { id:"3", name:"M4A4 | Howl", weapon:"M4A4", exterior:"Minimal Wear", float:0.11, price:1599.0, img:"https://picsum.photos/seed/m4howl/640/360", rarity:"Contraband" },
+      { id:"4", name:"Glock-18 | Water Elemental", weapon:"Glock-18", exterior:"Factory New", float:0.02, price:32.0, img:"https://picsum.photos/seed/gelemental/640/360", rarity:"Classified" },
+      { id:"5", name:"Desert Eagle | Blaze", weapon:"Desert Eagle", exterior:"Minimal Wear", float:0.15, price:640.0, img:"https://picsum.photos/seed/deblaze/640/360", rarity:"Covert" },
+    ];
+    let inventory = [
+      { id:"inv-1", name:"USP-S | Guardian", weapon:"USP-S", exterior:"Field-Tested", float:0.22, price:9.5, img:"https://picsum.photos/seed/uspsguardian/640/360", rarity:"Restricted" },
+      { id:"inv-2", name:"P90 | Trigon", weapon:"P90", exterior:"Minimal Wear", float:0.12, price:4.2, img:"https://picsum.photos/seed/p90trigon/640/360", rarity:"Restricted" },
+    ];
+    let orders = [];
+
+    let balance = 250.00;
+    let reserved = 0.00;
+
+    // ---------- Helpers ----------
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const fmt = (n) => new Intl.NumberFormat(undefined,{style:'currency',currency:'USD'}).format(n);
+    const computeAvailable = (b, r) => Math.max(0, b - r);
+    const bestAsks = (arr) => {
+      const map = new Map();
+      arr.forEach(l=>{ const prev = map.get(l.name); if(!prev||l.price<prev.price) map.set(l.name,l); });
+      return [...map.values()].sort((a,b)=>a.price-b.price);
+    };
+    const rid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+
+    // Basic deterministic PRNG for synthetic book data
+    function seededRng(seed){
+      let h = 2166136261 >>> 0; for(const ch of seed){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+      let x = h >>> 0; return () => ((x = (x*1664525 + 1013904223) >>> 0) / 2**32);
+    }
+
+    function toast(title, desc){
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = `<div style="font-weight:650;margin-bottom:4px">${title}</div>${desc?`<small>${desc}</small>`:''}`;
+      $('#toasts').appendChild(t);
+      setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; t.style.transition='all .25s'; }, 2400);
+      setTimeout(()=> t.remove(), 2700);
+    }
+
+    // ---------- Rendering ----------
+    function renderBalance(){
+      const avail = computeAvailable(balance, reserved);
+      $('#balanceBar').innerHTML = `
+        <div class="stat"><span class="label">Total</span><span style="margin-left:auto;font-weight:700">${fmt(balance)}</span></div>
+        <div class="stat"><span class="label">Reserved</span><span style="margin-left:auto;font-weight:700">${fmt(reserved)}</span></div>
+        <div class="stat"><span class="label">Available</span><span style="margin-left:auto;font-weight:700">${fmt(avail)}</span></div>
+        <div class="right">
+          <button class="btn" id="add50">+ $50</button>
+          <button class="btn primary">Add Funds</button>
+        </div>`;
+      $('#add50').onclick = ()=>{ balance += 50; renderBalance(); };
+    }
+
+    function rarityBadge(r){
+      const el = document.createElement('span');
+      el.className = `badge rar rar-${r.replaceAll(' ', '_')}`;
+      el.textContent = r; return el;
+    }
+
+    function marketCard(s){
+      const el = document.createElement('div'); el.className='card';
+      const hdr = document.createElement('div'); hdr.className='hdr';
+      const title = document.createElement('div'); title.className='title';
+      const nameSpan = document.createElement('span'); nameSpan.style.cssText='overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; nameSpan.title=s.name; nameSpan.textContent=s.name;
+      title.appendChild(nameSpan); title.appendChild(rarityBadge(s.rarity)); hdr.appendChild(title);
+      const sub = document.createElement('div'); sub.className='sub'; sub.textContent = `${s.weapon} • ${s.exterior} • Float ${s.float.toFixed(2)}`; hdr.appendChild(sub);
+      const body = document.createElement('div'); body.className='body'; const imgbox=document.createElement('div'); imgbox.className='imgbox'; imgbox.innerHTML=`<img src="${s.img}" alt="${s.name}">`; body.appendChild(imgbox);
+      const ftr = document.createElement('div'); ftr.className='ftr'; ftr.innerHTML = `<div style="font-weight:750">${fmt(s.price)}</div><div class="row"><button class="btn" data-bid="${s.id}">Bid</button><button class="btn primary" data-buy="${s.id}">Buy</button></div>`;
+      const preview = document.createElement('div'); preview.className='preview'; preview.innerHTML = `<div class="meta"><span class="badge">${s.exterior}</span><span class="badge">Float ${s.float.toFixed(2)}</span></div><div class="row" style="justify-content:space-between"><div style="font-weight:700">${fmt(s.price)}</div><button class="btn" data-view="${s.id}">Quick View</button></div>`;
+      imgbox.appendChild(preview);
+      el.appendChild(hdr); el.appendChild(body); el.appendChild(ftr);
+      return el;
+    }
+
+    function renderMarket(){
+      const grid = $('#marketGrid');
+      const q = ($('#q').value||'').toLowerCase();
+      const filtered = listings.filter(l => `${l.name} ${l.weapon} ${l.exterior}`.toLowerCase().includes(q));
+      grid.innerHTML = '';
+      filtered.forEach(s=> grid.appendChild(marketCard(s)) );
+
+      // Bid actions
+      $$('[data-bid]').forEach(btn=>{
+        btn.onclick = ()=>{
+          const s = listings.find(x=>x.id===btn.getAttribute('data-bid'));
+          openBidDialog(s);
+        };
+      });
+      // Buy actions (requires available funds)
+      $$('[data-buy]').forEach(btn=>{
+        btn.onclick = ()=>{
+          const idx = listings.findIndex(x=>x.id===btn.getAttribute('data-buy'));
+          if(idx===-1) return;
+          const s = listings[idx];
+          const avail = computeAvailable(balance, reserved);
+          if(s.price > avail){ toast('Insufficient balance', 'Add funds or place a bid.'); return; }
+          listings.splice(idx,1);
+          balance -= s.price;
+          inventory.unshift(s);
+          toast('Purchased (demo)', `${s.name} added to your inventory.`);
+          renderAll();
+        };
+      });
+      // Quick view → open item sheet
+      $$('[data-view]').forEach(btn=>{
+        btn.onclick = ()=>{
+          const s = listings.find(x=>x.id===btn.getAttribute('data-view'));
+          openItemSheet(s);
+        };
+      });
+    }
+
+    function renderOrderbook(){
+      const rows = $('#bookRows'); rows.innerHTML='';
+      bestAsks(listings).slice(0,8).forEach(a=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${a.name}<div class="muted" style="font-size:12px">${a.exterior} • Float ${a.float.toFixed(2)}</div></td>
+          <td style="text-align:right;font-weight:700">${fmt(a.price)}</td>
+          <td style="text-align:right"><input type="number" step="0.01" min="0" value="${a.price.toFixed(2)}" style="width:90px"/></td>
+          <td style="text-align:right"><button class="btn primary">Bid</button></td>`;
+        const input = tr.querySelector('input');
+        tr.querySelector('button').onclick = ()=>{
+          const price = parseFloat(input.value||'0');
+          const res = placeBid(a.name, price);
+          if(res.ok){ toast(res.filled?'Filled instantly (demo)':'Bid placed (demo)', res.filled?`${a.name} added to inventory.` : `Funds reserved from your balance.`); renderAll(); }
+          else toast('Insufficient balance', `Available: ${fmt(computeAvailable(balance, reserved))}.`);
+        };
+        rows.appendChild(tr);
+      });
+
+      const my = $('#orderRows'); my.innerHTML='';
+      orders.forEach(o=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="color:${o.side==='Bid'?'var(--accent-2)':'#ff7a7a'}">${o.side}</td><td>${o.skin}</td><td style="text-align:right">${fmt(o.price)}</td><td style="text-align:right">${o.qty}</td><td style="text-align:right">${o.status}</td>`;
+        my.appendChild(tr);
+      });
+      if(!orders.length){
+        const tr = document.createElement('tr'); tr.innerHTML = `<td colspan="5" style="text-align:center;color:var(--muted);padding:18px">No orders yet.</td>`; my.appendChild(tr);
+      }
+    }
+
+    function renderInventory(){
+      const host = $('#inventoryList'); host.innerHTML='';
+      if(!inventory.length){ host.innerHTML = `<div class="muted">No items. Buy on Market or deposit from Steam.</div>`; return; }
+      inventory.forEach(item=>{
+        const row = document.createElement('div'); row.className='row'; row.style.cssText='gap:12px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--surface)';
+        row.innerHTML = `
+          <img src="${item.img}" alt="" style="width:56px;height:56px;border-radius:10px;object-fit:cover"/>
+          <div class="mr-auto">
+            <div style="font-weight:650">${item.name} <span class="badge rar rar-${item.rarity.replaceAll(' ', '_')}">${item.rarity}</span></div>
+            <div class="muted" style="font-size:12px">${item.exterior} • Float ${item.float.toFixed(2)}</div>
+          </div>
+          <div>
+            <div class="field" style="margin:0">
+              <label style="font-size:12px">Ask price</label>
+              <input type="number" step="0.01" min="0" style="width:120px"/>
+            </div>
+          </div>
+          <button class="btn danger">Ask</button>`;
+        const input = row.querySelector('input');
+        row.querySelector('button').onclick = ()=>{
+          const p = parseFloat(input.value||'0'); if(!p||p<=0) return toast('Enter a valid ask');
+          placeAsk(item, p);
+          toast('Listed (demo)', `${item.name} listed for ${fmt(p)}`);
+          renderAll();
+        };
+        host.appendChild(row);
+      });
+    }
+
+    // ---------- Synthetic per-variant order book ----------
+    const EXTS = ["Factory New","Minimal Wear","Field-Tested","Well-Worn","Battle-Scarred"];
+    const EXT_M = {"Factory New":1.25,"Minimal Wear":1.1,"Field-Tested":1.0,"Well-Worn":0.9,"Battle-Scarred":0.75};
+    const ST_M = 1.12;
+
+    function baseFor(name){
+      const any = listings.find(l=>l.name===name) || listings[0];
+      return any.price / (EXT_M[any.exterior]||1);
+    }
+
+    function synthBook(name, st, exterior){
+      const seed = `${name}|${st?'ST':'N'}|${exterior}`; const r = seededRng(seed);
+      const base = baseFor(name) * (EXT_M[exterior]||1) * (st?ST_M:1);
+      const asks = Array.from({length:10}, (_,i)=>({ price: +(base*(1+i*0.01+ r()*0.003)).toFixed(2), qty: 1+Math.floor(r()*3) })).sort((a,b)=>a.price-b.price);
+      const bids = Array.from({length:10}, (_,i)=>({ price: +(base*(1-0.02 - i*0.01 - r()*0.003)).toFixed(2), qty: 1+Math.floor(r()*3) })).sort((a,b)=>b.price-a.price);
+      return { asks, bids };
+    }
+
+    function renderBookTo(el, rows){ el.innerHTML=''; rows.forEach(l=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${fmt(l.price)}</td><td>${l.qty}</td>`; el.appendChild(tr); }); }
+
+    // ---------- Item sheet (detail) ----------
+    let SHEET = { st:false, exterior:"Field-Tested", name:null };
+
+    function openItemSheet(item){
+      SHEET.name = item.name; SHEET.exterior = item.exterior; SHEET.st = false;
+      $('#sheetTitle').textContent = item.name; $('#sheetRarity').className = `badge rar rar-${item.rarity.replaceAll(' ','_')}`; $('#sheetRarity').textContent = item.rarity;
+      $('#sheetImg').src = item.img; $('#sheetImg').alt = item.name;
+      // exterior pills
+      const holder = $('#extPills'); holder.innerHTML='';
+      EXTS.forEach(ext=>{ const b=document.createElement('button'); b.className='pill'; b.setAttribute('aria-pressed', ext===SHEET.exterior ? 'true':'false'); b.textContent=ext.replace('-', '‑'); b.onclick=()=>{ SHEET.exterior = ext; updateSheet(); }; holder.appendChild(b); });
+      $('#toggleST').setAttribute('aria-pressed','false');
+      updateSheet();
+      $('#itemSheet').showModal();
+    }
+
+    function updateSheet(){
+      // update pills pressed state
+      $$('#extPills .pill').forEach(b=> b.setAttribute('aria-pressed', String(b.textContent.replace('‑','-')===SHEET.exterior)) );
+      $('#variantLabel').textContent = `${SHEET.st? 'StatTrak® ' : ''}${SHEET.exterior}`;
+      const {asks,bids} = synthBook(SHEET.name, SHEET.st, SHEET.exterior);
+      renderBookTo($('#sheetAsks'), asks);
+      renderBookTo($('#sheetBids'), bids);
+      $('#sheetLowest').textContent = fmt(asks[0]?.price||0);
+      $('#sheetHighest').textContent = fmt(bids[0]?.price||0);
+      const vol = Math.floor((seededRng(SHEET.name + '|vol')()*40)+10); $('#sheetVol').textContent = `${vol}`;
+      const mid = (asks[0]?.price + bids[0]?.price)/2 || baseFor(SHEET.name);
+      $('#sheetBidInput').value = (bids[0]?.price || mid).toFixed(2);
+    }
+
+    $('#toggleST').onclick = ()=>{ SHEET.st = !SHEET.st; $('#toggleST').setAttribute('aria-pressed', String(SHEET.st)); updateSheet(); };
+
+    $('#sheetBidMinus').onclick = ()=>{ const i=$('#sheetBidInput'); i.value = Math.max(0, parseFloat(i.value||'0') - 0.05).toFixed(2); };
+    $('#sheetBidPlus').onclick = ()=>{ const i=$('#sheetBidInput'); i.value = (parseFloat(i.value||'0') + 0.05).toFixed(2); };
+
+    $('#sheetPlaceBid').onclick = ()=>{
+      const p = parseFloat($('#sheetBidInput').value||'0');
+      const res = placeBid(`${SHEET.name} ${SHEET.st?'(ST)':''} ${SHEET.exterior}`, p);
+      if(res.ok) toast(res.filled? 'Filled instantly (demo)':'Bid placed (demo)', `Variant: ${SHEET.st?'ST, ':''}${SHEET.exterior}`);
+      else toast('Insufficient balance', `Available: ${fmt(computeAvailable(balance, reserved))}.`);
+      renderAll();
+    };
+    $('#sheetBuyNow').onclick = ()=>{
+      const {asks} = synthBook(SHEET.name, SHEET.st, SHEET.exterior); const best = asks[0]; if(!best) return;
+      const avail = computeAvailable(balance, reserved);
+      if(best.price > avail) return toast('Insufficient balance', 'Add funds or place a bid.');
+      balance -= best.price; inventory.unshift({ id:rid(), name:`${SHEET.name}${SHEET.st?' (ST)':''}`, weapon:'', exterior:SHEET.exterior, float:0.00, price:best.price, img:$('#sheetImg').src, rarity:$('#sheetRarity').textContent });
+      toast('Purchased (demo)', `${SHEET.name} • ${SHEET.exterior}${SHEET.st?' • ST':''}`);
+      renderAll();
+    };
+    $('#closeSheet').onclick = ()=> $('#itemSheet').close();
+
+    // ---------- Actions ----------
+    function placeBid(skinName, price, qty=1){
+      const need = price*qty; const avail = computeAvailable(balance, reserved);
+      if(need > avail) return { ok:false, reason:'Insufficient available balance' };
+      const id = rid();
+      orders.unshift({ id, side:'Bid', skin:skinName, price, qty, status:'Open' });
+      reserved += need;
+      const matchIdx = listings.findIndex(l=> l.name===skinName && l.price <= price);
+      if(matchIdx>-1){
+        const match = listings.splice(matchIdx,1)[0];
+        orders = orders.map(o=> o.id===id?{...o,status:'Filled'}:o);
+        reserved -= match.price; balance -= match.price; inventory.unshift(match);
+        return { ok:true, filled:true };
+      }
+      return { ok:true, filled:false };
+    }
+
+    function placeAsk(item, price){
+      inventory = inventory.filter(i=>i.id!==item.id);
+      orders.unshift({ id:rid(), side:'Ask', skin:item.name, price, qty:1, status:'Open' });
+    }
+
+    // ---------- Tabs ----------
+    function setTab(id){
+      $$('.tab-panel').forEach(p=>p.classList.add('hidden'));
+      $('#'+id).classList.remove('hidden');
+      $$('.tablist [role=tab]').forEach(b=>b.setAttribute('aria-selected','false'));
+      $('#tabbtn-'+id.split('tab-')[1]).setAttribute('aria-selected','true');
+      if(id==='tab-market') renderMarket();
+      if(id==='tab-orderbook') renderOrderbook();
+      if(id==='tab-inventory') renderInventory();
+    }
+    $$('#tabbtn-market, #tabbtn-orderbook, #tabbtn-inventory, #tabbtn-trades').forEach(btn=>{
+      btn.onclick = ()=> setTab(btn.getAttribute('aria-controls'));
+    });
+
+    // ---------- Dialog ----------
+    const bidDialog = $('#bidDialog');
+    let dialogSkin = null;
+    function openBidDialog(skin){
+      dialogSkin = skin; $('#bidPrice').value = skin.price.toFixed(2); bidDialog.showModal();
+    }
+    $('#cancelBid').onclick = ()=> bidDialog.close();
+    $('#confirmBid').onclick = ()=>{
+      const p = parseFloat($('#bidPrice').value||'0');
+      const res = placeBid(dialogSkin.name, p);
+      if(res.ok){ toast(res.filled?'Filled instantly (demo)':'Bid placed (demo)', res.filled?`${dialogSkin.name} added to inventory.`:'Funds reserved from your balance.'); }
+      else toast('Insufficient balance', `Available: ${fmt(computeAvailable(balance, reserved))}.`);
+      bidDialog.close(); renderAll();
+    };
+
+    // ---------- Theme ----------
+    const themeKey = 'sx_theme';
+    const savedTheme = localStorage.getItem(themeKey);
+    if(savedTheme) document.body.dataset.theme = savedTheme; // still persists
+    else document.body.dataset.theme = 'midnight';
+    $('#themeToggle').onclick = () => {
+      const next = document.body.dataset.theme === 'midnight' ? 'aurora' : 'midnight';
+      document.body.dataset.theme = next; localStorage.setItem(themeKey, next);
+    };
+
+    // ---------- Misc ----------
+    $('#q').addEventListener('input', renderMarket);
+    $('#sendOffer').onclick = ()=> toast('Sent (demo)','Trade offer submitted to bot.');
+
+    function renderAll(){ renderBalance(); renderMarket(); renderOrderbook(); renderInventory(); }
+
+    // ---------- Dev sanity tests ----------
+    console.groupCollapsed('SkinXchange dev tests');
+    console.assert(typeof fmt(0) === 'string', 'fmt returns string');
+    console.assert(fmt(0).length > 0, 'fmt not empty');
+    console.assert(computeAvailable(100,30)===70, 'available 100-30 = 70');
+    console.assert(computeAvailable(50,60)===0, 'available clamps at 0');
+    const testAsks = bestAsks([
+      { ...listings[0], id:'t1', name:'AK-47 | Redline', price:50 },
+      { ...listings[0], id:'t2', name:'AK-47 | Redline', price:45 },
+      { ...listings[1], id:'t3', name:'AWP | Asiimov', price:120 },
+    ]);
+    console.assert(testAsks[0].name.includes('AK-47') && testAsks[0].price===45, 'best ask picks lowest per skin');
+    console.assert(testAsks.length===2, 'dedup by skin name');
+    // synthBook tests
+    const tb = synthBook('AK-47 | Redline', false, 'Field-Tested');
+    console.assert(tb.asks.length===10 && tb.bids.length===10, 'book has 10x10 levels');
+    console.assert(tb.asks[0].price <= tb.asks[9].price, 'asks ascending');
+    console.assert(tb.bids[0].price >= tb.bids[9].price, 'bids descending');
+    console.groupEnd();
+
+    // ---------- Init ----------
+    renderAll();
+    setTab('tab-market');
+  </script>
+</body>
+</html>
