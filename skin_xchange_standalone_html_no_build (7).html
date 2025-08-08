@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SkinXchange — Trader Layout (Midnight)</title>
+  <style>
+    /* =============================
+       Aurora ↔ Midnight theming
+       ============================= */
+    :root{
+      /* Aurora (light) */
+      --bg:#f6f8fb;            /* page background */
+      --bg-grad-1:#f6f8fb;     /* subtle gradient colors */
+      --bg-grad-2:#eef3ff;
+      --surface:#ffffff;       /* cards */
+      --text:#0f172a;          /* primary text */
+      --muted:#64748b;         /* secondary text */
+      --border:#e6e9f2;        /* borders */
+      --subtle:#eff3f8;        /* image placeholders */
+      --accent:#6c8cff;        /* periwinkle */
+      --accent-2:#62d6c8;      /* seafoam */
+      --accent-3:#caa6ff;      /* lilac */
+      --accent-text:#0b1220;   /* dark text on bright accents */
+      --danger:#dc2626;
+      --radius:12px;
+      --shadow:0 10px 30px rgba(20,32,66,.08);
+      --up:#16a34a;            /* green for upticks */
+      --down:#ef4444;          /* red for downticks */
+    }
+
+    /* Midnight (default) */
+    body[data-theme="midnight"]{
+      --bg:#070b15;            /* deeper base */
+      --bg-grad-1:#070b15;
+      --bg-grad-2:#0b1530;     /* deeper blue tint */
+      --surface:#0e1526;       /* cards slightly lighter than bg */
+      --text:#e6efff;
+      --muted:#9fb0cc;
+      --border:#1a2742;
+      --subtle:#0a1122;
+      --accent:#6fd4c6;
+      --accent-2:#8ea2ff;
+      --accent-3:#bd93f9;
+      --accent-text:#0c1022;
+      --danger:#f87171;
+      --shadow:0 12px 34px rgba(3,10,28,.45);
+      --up:#34d399;
+      --down:#f87171;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%; width:100%;}
+    body{
+      margin:0;
+      font:14px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, var(--bg-grad-2), transparent 60%),
+        radial-gradient(1000px 500px at 120% -20%, color-mix(in hsl, var(--accent-3) 26%, transparent), transparent 50%),
+        var(--bg);
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+
+    header{
+      position:sticky;top:0;z-index:10;
+      background:color-mix(in hsl, var(--surface) 92%, transparent);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+
+    /* Layout */
+    .container{width:100%; max-width:none; margin:0; padding:12px 18px}
+    main{padding-bottom:32px; min-height:calc(100vh - 54px); width:100%;}
+    .row{display:flex;gap:10px;align-items:center}
+    .mr-auto{margin-right:auto}
+
+    /* Utility */
+    .muted{color:var(--muted)}
+    .mono{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; letter-spacing:.2px}
+    .right{text-align:right}
+    .hidden{display:none}
+    .striped tbody tr:nth-child(odd){background:color-mix(in hsl, var(--surface) 92%, transparent)}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:linear-gradient(180deg, color-mix(in hsl, var(--surface) 98%, transparent), var(--surface));color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer;transition:transform .12s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease}
+    .btn:hover{transform:translateY(-1px); border-color:color-mix(in hsl, var(--accent-2) 40%, var(--border))}
+    .btn:active{transform:translateY(0)}
+    .btn.primary{background:linear-gradient(135deg, var(--accent), var(--accent-2));border-color:transparent;color:var(--accent-text)}
+    .btn.ghost{background:transparent}
+    .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+
+    /* Cards */
+    .card{background:linear-gradient(180deg, color-mix(in hsl, var(--surface) 92%, transparent), var(--surface));border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+    .card .hdr{padding:10px 12px;border-bottom:1px solid var(--border)}
+    .card .hdr .title{font-weight:650;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+    .card .hdr .sub{color:var(--muted);font-size:11px;margin-top:3px}
+    .card .body{padding:10px 12px}
+    .card .ftr{padding:10px 12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+
+    /* Top nav tabs */
+    .navtabs{display:flex;gap:8px;margin:12px 0}
+    .navtabs button{border-radius:8px;padding:8px 12px}
+    .navtabs button[aria-selected="true"]{background:color-mix(in hsl, var(--accent-2) 22%, var(--surface));}
+
+    /* Terminal layout */
+    .terminal{display:grid;grid-template-columns:280px minmax(0,1fr) 380px;gap:12px;margin-top:12px}
+    .leftbar,.rightbar{display:flex;flex-direction:column;gap:12px}
+    .pane-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:260px;gap:12px}
+    .pane{position:relative;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg, color-mix(in hsl, var(--surface) 94%, transparent), var(--surface));overflow:hidden}
+    .pane .phdr{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px}
+    .pane .chart{position:absolute;inset:34px 6px 6px 6px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.04))}
+    .pane .wm{position:absolute;right:8px;top:40px;width:72px;height:72px;border-radius:8px;opacity:.15;object-fit:cover;filter:saturate(1.1)}
+
+    /* Watchlist */
+    .wl-search{margin-bottom:8px}
+    .wl{display:flex;flex-direction:column}
+    .wl-row{display:grid;grid-template-columns:auto 1.25fr .7fr .6fr 1fr;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--border);cursor:pointer}
+    .wl-row:hover{background:color-mix(in hsl, var(--accent-2) 10%, var(--surface))}
+    .wl-row.active{background:color-mix(in hsl, var(--accent-2) 18%, var(--surface)); box-shadow:inset 3px 0 0 0 var(--accent-2)}
+    .wl-spark{height:24px}
+    .wl-thumb{width:28px;height:28px;border-radius:6px;object-fit:cover;border:1px solid var(--border)}
+    .up{color:var(--up)}
+    .down{color:var(--down)}
+
+    /* Order ticket */
+    .ticket .tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);padding:6px 6px 0 6px}
+    .ticket .tab-btn{padding:8px 10px;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;background:color-mix(in hsl, var(--accent-2) 8%, var(--surface));cursor:pointer}
+    .ticket .tab-btn[aria-selected="true"]{background:color-mix(in hsl, var(--accent-2) 20%, var(--surface))}
+    .ticket .section{padding:10px 12px;border-bottom:1px solid var(--border)}
+    .kv{display:grid;grid-template-columns:1fr auto;gap:6px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    input[type="text"], input[type="number"], select{border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:linear-gradient(180deg, color-mix(in hsl, var(--surface) 98%, transparent), var(--surface));color:var(--text)}
+    .pill{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:color-mix(in hsl, var(--accent-2) 8%, var(--surface));cursor:pointer}
+    .pill[aria-pressed="true"]{background:color-mix(in hsl, var(--accent-2) 20%, var(--surface));}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px}
+    thead{color:var(--muted)}
+    tbody tr{border-top:1px solid var(--border)}
+    .book-asks thead th:first-child, .book-asks tbody td:first-child{color:var(--down)}
+    .book-bids thead th:first-child, .book-bids tbody td:first-child{color:var(--up)}
+
+    /* Toasts */
+    .toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:100}
+    .toast{background:linear-gradient(135deg, #0b1220, #1b2a50);color:#fff;padding:10px 12px;border-radius:12px;box-shadow:var(--shadow);max-width:360px;border:1px solid rgba(255,255,255,.08)}
+    body[data-theme="midnight"] .toast{background:linear-gradient(135deg, #10182e, #0e2233)}
+
+    /* Dialogs & item sheet */
+    dialog{border:none;border-radius:14px;box-shadow:0 20px 64px rgba(0,0,0,.35);padding:0;background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    dialog::backdrop{background:rgba(0,0,0,.45)}
+    .dlg-hdr{padding:12px;border-bottom:1px solid var(--border);font-weight:650}
+    .dlg-body{padding:12px}
+    .imgbox{aspect-ratio:16/9;background:var(--subtle);border-radius:12px;overflow:hidden}
+    .imgbox img{width:100%;height:100%;object-fit:cover;display:block}
+    .thumbs{display:flex;gap:8px;margin-top:8px}
+    .thumbs img{width:72px;height:48px;border-radius:8px;border:1px solid var(--border);object-fit:cover;cursor:pointer;opacity:.9}
+    .thumbs img.active{outline:2px solid var(--accent-2);opacity:1}
+
+    /* Rarity color accents */
+    .rar-Classified{background:linear-gradient(135deg, #ff9bd4, #e48bff)}
+    .rar-Covert{background:linear-gradient(135deg, #ff7070, #ff9a6b)}
+    .rar-Contraband{background:linear-gradient(135deg, #ffcd77, #ffa94d)}
+    .rar-Restricted{background:linear-gradient(135deg, #b889ff, #8ea2ff)}
+    .rar-Mil-Spec{background:linear-gradient(135deg, #79b3ff, #59a2ff)}
+    .rar-Industrial{background:linear-gradient(135deg, #cbd5e1, #a8b1c7)}
+    .rar-Consumer{background:linear-gradient(135deg, #e2e8f0, #cbd5e1)}
+    .rar{color:#0b1220;border:none}
+  </style>
+</head>
+<body data-theme="midnight">
+  <header>
+    <div class="container row">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg, var(--accent), var(--accent-2));display:grid;place-items:center;color:var(--accent-text);font-weight:750;box-shadow:var(--shadow)">S</div>
+      <div class="mr-auto">
+        <div style="font-weight:700;letter-spacing:.2px">SkinXchange</div>
+        <div class="muted" style="font-size:12px">Trader layout — watchlist • multi‑chart • order ticket</div>
+      </div>
+      <button id="themeToggle" class="btn ghost" title="Toggle theme">Theme</button>
+      <button class="btn" id="docsBtn">Docs</button>
+      <button class="btn primary" id="connectBtn">Connect Steam</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="navtabs" role="tablist" aria-label="Views">
+      <button role="tab" id="tabbtn-market" aria-controls="tab-market" aria-selected="true" class="btn">Market</button>
+      <button role="tab" id="tabbtn-orderbook" aria-controls="tab-orderbook" aria-selected="false" class="btn">Orderbook</button>
+      <button role="tab" id="tabbtn-inventory" aria-controls="tab-inventory" aria-selected="false" class="btn">Inventory</button>
+      <button role="tab" id="tabbtn-trades" aria-controls="tab-trades" aria-selected="false" class="btn">Trades</button>
+    </div>
+
+    <div class="card">
+      <div class="body">
+        <div class="row" id="balanceBar"></div>
+      </div>
+    </div>
+
+    <section id="tab-market" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-market">
+      <div class="terminal" id="terminal">
+        <!-- Left: Watchlist -->
+        <aside class="leftbar">
+          <div class="card">
+            <div class="hdr"><div class="title">Watchlist</div><div class="sub">Click a skin to focus</div></div>
+            <div class="body">
+              <div class="wl-search"><input id="wlSearch" type="text" placeholder="Search skins..." style="width:100%"></div>
+              <div class="wl" id="watchlistRows"></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Center: Multi‑chart panes -->
+        <div class="pane-grid" id="paneGrid"></div>
+
+        <!-- Right: Order ticket + book -->
+        <aside class="rightbar">
+          <div class="card ticket" id="ticketPanel"></div>
+          <div class="card" id="miniBook">
+            <div class="hdr"><div class="title">Depth (Top Levels)</div></div>
+            <div class="body">
+              <div class="row" style="gap:12px">
+                <table class="book-asks striped mono" style="flex:1"><thead><tr><th>Ask</th><th class="right">Qty</th></tr></thead><tbody id="miniAsks"></tbody></table>
+                <table class="book-bids striped mono" style="flex:1"><thead><tr><th>Bid</th><th class="right">Qty</th></tr></thead><tbody id="miniBids"></tbody></table>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tab-orderbook" class="tab-panel hidden" role="tabpanel" aria-labelledby="tabbtn-orderbook" style="margin-top:12px">
+      <div class="card"><div class="hdr"><div class="title">Simple Orderbook</div></div>
+        <div class="body" style="overflow:auto">
+          <table class="mono striped">
+            <thead><tr><th>Skin</th><th class="right">Best Ask</th><th class="right">Your Quick Bid</th><th class="right">Action</th></tr></thead>
+            <tbody id="bookRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="hdr"><div class="title">Your Orders</div><div class="sub">Funds for open bids are reserved until fill/cancel.</div></div>
+        <div class="body" style="overflow:auto">
+          <table class="mono striped">
+            <thead><tr><th>Side</th><th>Skin</th><th class="right">Price</th><th class="right">Qty</th><th class="right">Status</th></tr></thead>
+            <tbody id="orderRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-inventory" class="tab-panel hidden" role="tabpanel" aria-labelledby="tabbtn-inventory" style="margin-top:12px">
+      <div class="card">
+        <div class="hdr"><div class="title">Your Items</div></div>
+        <div class="body" id="inventoryList"></div>
+      </div>
+    </section>
+
+    <section id="tab-trades" class="tab-panel hidden" role="tabpanel" aria-labelledby="tabbtn-trades" style="margin-top:12px">
+      <div class="card"><div class="hdr"><div class="title">Trades & Security</div></div>
+        <div class="body">
+          <div class="field"><label for="tradeUrl">Steam Trade URL</label><input id="tradeUrl" type="text" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..."/></div>
+          <button class="btn primary" id="sendOffer">Send Offer</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="muted" style="margin-top:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>Demo only — not affiliated with Valve/Steam/Skinport.</div>
+      <div class="row" style="gap:12px"><a>Terms</a><a>Privacy</a><a>Support</a></div>
+    </footer>
+  </main>
+
+  <!-- Bid dialog (kept) -->
+  <dialog id="bidDialog">
+    <div class="dlg-hdr">Place Bid</div>
+    <div class="dlg-body">
+      <div class="field"><label for="bidPrice">Price</label><input id="bidPrice" type="number" step="0.01" min="0" /></div>
+      <div class="row" style="justify-content:flex-end;gap:8px"><button class="btn" id="cancelBid">Cancel</button><button class="btn primary" id="confirmBid">Submit</button></div>
+    </div>
+  </dialog>
+
+  <!-- Item Detail Sheet (with gallery) -->
+  <dialog id="itemSheet" class="sheet">
+    <div class="dlg-hdr" style="display:flex;align-items:center;gap:12px">
+      <div id="sheetTitle" style="font-weight:700"></div>
+      <span id="sheetRarity" class="badge"></span>
+      <div class="mr-auto"></div>
+      <button id="closeSheet" class="btn">Close</button>
+    </div>
+    <div class="dlg-body">
+      <div>
+        <div class="body">
+          <div class="imgbox"><img id="sheetImg" alt=""></div>
+          <div class="thumbs" id="sheetThumbs"></div>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:10px">
+          <div class="card"><div class="body"><div class="muted" style="font-size:12px">Lowest Ask</div><div id="sheetLowest" style="font-weight:750;margin-top:4px">—</div></div></div>
+          <div class="card"><div class="body"><div class="muted" style="font-size:12px">Highest Bid</div><div id="sheetHighest" style="font-weight:750;margin-top:4px">—</div></div></div>
+          <div class="card"><div class="body"><div class="muted" style="font-size:12px">24h Trades</div><div id="sheetVol" style="font-weight:750;margin-top:4px">—</div></div></div>
+        </div>
+        <div class="card" style="margin-top:10px"><div class="body">
+          <div class="row" style="flex-wrap:wrap;gap:8px"><button id="toggleST" class="pill" aria-pressed="false">StatTrak®</button><div class="muted" style="font-size:12px">Exterior:</div><div id="extPills" class="row" style="flex-wrap:wrap;gap:6px"></div></div>
+        </div></div>
+      </div>
+      <div>
+        <div class="card"><div class="hdr"><div class="title">Order Book <span id="variantLabel" class="badge" style="margin-left:8px"></span></div></div>
+          <div class="body">
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+              <div><div class="muted" style="font-size:12px;margin-bottom:6px">Top Asks</div><table class="mono striped"><thead><tr><th>Price</th><th>Qty</th></tr></thead><tbody id="sheetAsks"></tbody></table></div>
+              <div><div class="muted" style="font-size:12px;margin-bottom:6px">Top Bids</div><table class="mono striped"><thead><tr><th>Price</th><th>Qty</th></tr></thead><tbody id="sheetBids"></tbody></table></div>
+            </div>
+          </div>
+          <div class="ftr">
+            <div class="row" style="gap:8px"><button class="btn" id="sheetBidMinus">−</button><input id="sheetBidInput" type="number" step="0.01" min="0" style="width:120px"/><button class="btn" id="sheetBidPlus">+</button></div>
+            <div class="row" style="gap:8px"><button class="btn" id="sheetPlaceBid">Place Bid</button><button class="btn primary" id="sheetBuyNow">Buy Best Ask</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script>
+    // ---------- Data ----------
+    const listings = [
+      { id:"1", name:"AK-47 | Redline", weapon:"AK-47", exterior:"Field-Tested", float:0.23, price:42.5, img:"https://picsum.photos/seed/akredline/640/360", rarity:"Classified" },
+      { id:"2", name:"AWP | Asiimov", weapon:"AWP", exterior:"Well-Worn", float:0.43, price:118.0, img:"https://picsum.photos/seed/awpasiimov/640/360", rarity:"Covert" },
+      { id:"3", name:"M4A4 | Howl", weapon:"M4A4", exterior:"Minimal Wear", float:0.11, price:1599.0, img:"https://picsum.photos/seed/m4howl/640/360", rarity:"Contraband" },
+      { id:"4", name:"Glock-18 | Water Elemental", weapon:"Glock-18", exterior:"Factory New", float:0.02, price:32.0, img:"https://picsum.photos/seed/gelemental/640/360", rarity:"Classified" },
+      { id:"5", name:"Desert Eagle | Blaze", weapon:"Desert Eagle", exterior:"Minimal Wear", float:0.15, price:640.0, img:"https://picsum.photos/seed/deblaze/640/360", rarity:"Covert" },
+      { id:"6", name:"AK-47 | Neon Revolution", weapon:"AK-47", exterior:"Minimal Wear", float:0.10, price:78.0, img:"https://picsum.photos/seed/akneon/640/360", rarity:"Covert" },
+      { id:"7", name:"AWP | Hyper Beast", weapon:"AWP", exterior:"Field-Tested", float:0.20, price:88.0, img:"https://picsum.photos/seed/awphyper/640/360", rarity:"Classified" },
+      { id:"8", name:"USP-S | Kill Confirmed", weapon:"USP-S", exterior:"Factory New", float:0.02, price:165.0, img:"https://picsum.photos/seed/uspkill/640/360", rarity:"Covert" },
+      { id:"9", name:"Glock-18 | Fade", weapon:"Glock-18", exterior:"Factory New", float:0.02, price:220.0, img:"https://picsum.photos/seed/gfade/640/360", rarity:"Classified" },
+      { id:"10", name:"AK-47 | Fire Serpent", weapon:"AK-47", exterior:"Well-Worn", float:0.44, price:520.0, img:"https://picsum.photos/seed/akfireserp/640/360", rarity:"Covert" }
+    ];
+
+    let inventory = [
+      { id:"inv-1", name:"USP-S | Guardian", weapon:"USP-S", exterior:"Field-Tested", float:0.22, price:9.5, img:"https://picsum.photos/seed/uspsguardian/640/360", rarity:"Restricted" },
+      { id:"inv-2", name:"P90 | Trigon", weapon:"P90", exterior:"Minimal Wear", float:0.12, price:4.2, img:"https://picsum.photos/seed/p90trigon/640/360", rarity:"Restricted" }
+    ];
+    let orders = [];
+
+    let balance = 250.00; let reserved = 0.00;
+
+    // ---------- Persistence ----------
+    const STORE_KEY = 'sx_demo_state_v2';
+    function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({balance,reserved,orders,inventory})); }catch(_){} }
+    (function loadState(){ try{ const raw=localStorage.getItem(STORE_KEY); if(!raw) return; const s=JSON.parse(raw); if(typeof s.balance==='number') balance=s.balance; if(typeof s.reserved==='number') reserved=s.reserved; if(Array.isArray(s.orders)) orders=s.orders; if(Array.isArray(s.inventory)) inventory=s.inventory; }catch(_){} })();
+
+    // ---------- Helpers ----------
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const fmt = (n) => new Intl.NumberFormat(undefined,{style:'currency',currency:'USD'}).format(n);
+    const computeAvailable = (b, r) => Math.max(0, b - r);
+    const bestAsks = (arr) => { const map = new Map(); arr.forEach(l=>{ const prev = map.get(l.name); if(!prev||l.price<prev.price) map.set(l.name,l); }); return [...map.values()].sort((a,b)=>a.price-b.price); };
+    const rid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+
+    // PRNG + synthetic price series
+    function seededRng(seed){ let h = 2166136261>>>0; for(const ch of seed){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619);} let x=h>>>0; return ()=>((x=(x*1664525+1013904223)>>>0)/2**32); }
+    function priceSeries(name, points=60){ const r=seededRng(name); const base=baseFor(name); let p=base; const arr=[]; for(let i=0;i<points;i++){ p*=1+(r()-0.5)*0.02; arr.push(+p.toFixed(2)); } return arr; }
+    function spark(values,w=120,h=24){ const min=Math.min(...values), max=Math.max(...values); const scale=x=> ( (x-min)/(max-min||1) )*(h-2)+1; let d=''; values.forEach((v,i)=>{ const x=(i/(values.length-1))*(w-2)+1; const y=h-scale(v); d+= (i? 'L':'M')+x.toFixed(1)+','+y.toFixed(1)+' '; }); return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`; }
+
+    function toast(title, desc){ const t=document.createElement('div'); t.className='toast'; t.innerHTML=`<div style="font-weight:650;margin-bottom:4px">${title}</div>${desc?`<small>${desc}</small>`:''}`; $('#toasts').appendChild(t); setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; t.style.transition='all .25s'; }, 2200); setTimeout(()=> t.remove(), 2500); }
+
+    // ---------- Tabs ----------
+    function setTab(id){ $$('.tab-panel').forEach(p=>p.classList.add('hidden')); $('#'+id).classList.remove('hidden'); $$('.navtabs [role=tab]').forEach(b=>b.setAttribute('aria-selected','false')); $('#tabbtn-'+id.split('tab-')[1]).setAttribute('aria-selected','true'); if(id==='tab-market') { renderWatchlist(); renderPanes(); renderTicket(); }
+      if(id==='tab-orderbook') renderOrderbook(); if(id==='tab-inventory') renderInventory(); }
+    $$('#tabbtn-market,#tabbtn-orderbook,#tabbtn-inventory,#tabbtn-trades').forEach(btn=>{ btn.onclick=()=> setTab(btn.getAttribute('aria-controls')); });
+
+    // ---------- Balance ----------
+    function renderBalance(){ const avail=computeAvailable(balance,reserved); $('#balanceBar').innerHTML=`
+      <div class="badge mono">Total ${fmt(balance)}</div>
+      <div class="badge mono">Reserved ${fmt(reserved)}</div>
+      <div class="badge mono">Available <b>${fmt(avail)}</b></div>
+      <div class="mr-auto"></div>
+      <button class="btn" id="add50">+ $50</button>`; $('#add50').onclick=()=>{ balance+=50; renderBalance(); renderTicket(); saveState(); }; }
+
+    // ---------- Trader layout state ----------
+    let ACTIVE = listings[0]; // focused skin
+    const EXTS=["Factory New","Minimal Wear","Field-Tested","Well-Worn","Battle-Scarred"]; const EXT_M={"Factory New":1.25,"Minimal Wear":1.1,"Field-Tested":1.0,"Well-Worn":0.9,"Battle-Scarred":0.75}; const ST_M=1.12;
+    function baseFor(name){ const any=listings.find(l=>l.name===name)||listings[0]; return any.price/(EXT_M[any.exterior]||1); }
+
+    function synthBook(name, st, exterior){ const seed=`${name}|${st?'ST':'N'}|${exterior}`; const r=seededRng(seed); const base=baseFor(name)*(EXT_M[exterior]||1)*(st?ST_M:1); const asks=Array.from({length:10},(_,i)=>({price:+(base*(1+i*0.01+r()*0.003)).toFixed(2),qty:1+Math.floor(r()*3)})).sort((a,b)=>a.price-b.price); const bids=Array.from({length:10},(_,i)=>({price:+(base*(1-0.02-i*0.01-r()*0.003)).toFixed(2),qty:1+Math.floor(r()*3)})).sort((a,b)=>b.price-a.price); return {asks,bids}; }
+    function renderBookTo(el, rows){ el.innerHTML=''; rows.forEach(l=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${fmt(l.price)}</td><td class="right">${l.qty}</td>`; el.appendChild(tr); }); }
+
+    // ---------- Watchlist ----------
+    function renderWatchlist(){ const host=$('#watchlistRows'); const q=($('#wlSearch').value||'').toLowerCase(); host.innerHTML=''; const uniq = Array.from(new Map(listings.map(l=>[l.name,l])).values()); uniq.filter(x=>x.name.toLowerCase().includes(q)).forEach(item=>{ const series=priceSeries(item.name,50); const chg=((series.at(-1)-series[0])/series[0])*100; const row=document.createElement('div'); row.className='wl-row'+(item.name===ACTIVE.name?' active':''); row.innerHTML=`
+        <img class="wl-thumb" src="${item.img}" alt="${item.name}">
+        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.name}</div>
+        <div class="right mono">${fmt(series.at(-1))}</div>
+        <div class="${chg>=0?'up':'down'} right mono">${chg>=0?'+':''}${chg.toFixed(2)}%</div>
+        <div class="wl-spark" style="color:${chg>=0?'var(--up)':'var(--down)'}">${spark(series,120,24)}</div>`; row.onclick=()=>{ ACTIVE=item; renderPanes(); renderTicket(); updateMiniDepth(); }; host.appendChild(row); }); }
+
+    // ---------- Center panes (fake charts + watermark image) ----------
+    function renderPanes(){ const grid=$('#paneGrid'); grid.innerHTML=''; const variants=[ACTIVE.exterior,"Minimal Wear","Field-Tested","Well-Worn"]; variants.slice(0,4).forEach((ext)=>{ const pane=document.createElement('div'); pane.className='pane'; const hdr=document.createElement('div'); hdr.className='phdr'; hdr.innerHTML=`<div>${ACTIVE.name} • ${ext}</div><div class="row"><span class="badge">${ACTIVE.rarity}</span><button class="btn" style="padding:4px 8px">Details</button></div>`; const series=priceSeries(ACTIVE.name+'|'+ext,80); const chg=((series.at(-1)-series[0])/series[0])*100; const svg=spark(series,560,200); const chart=document.createElement('div'); chart.className='chart'; chart.innerHTML=`<div style="position:absolute;inset:8px;color:${chg>=0?'var(--up)':'var(--down)'}">${svg}</div>`; const wm=document.createElement('img'); wm.src=ACTIVE.img; wm.alt=''; wm.className='wm'; pane.appendChild(hdr); pane.appendChild(chart); pane.appendChild(wm); grid.appendChild(pane); const btn=hdr.querySelector('button'); btn.onclick=()=>openItemSheet(ACTIVE); }); updateMiniDepth(); }
+
+    function updateMiniDepth(){ const {asks,bids}=synthBook(ACTIVE.name,false,ACTIVE.exterior); renderBookTo($('#miniAsks'), asks.slice(0,6)); renderBookTo($('#miniBids'), bids.slice(0,6)); }
+
+    // ---------- Order ticket ----------
+    let TICKET={side:'Buy', type:'Limit', st:false, ext:()=>ACTIVE.exterior, qty:1, price:0};
+
+    function renderTicket(){ const host=$('#ticketPanel'); const {asks,bids}=synthBook(ACTIVE.name,TICKET.st,TICKET.ext()); const bestAsk=asks[0]?.price||0; const bestBid=bids[0]?.price||0; if(!TICKET.price) TICKET.price=bestBid||baseFor(ACTIVE.name); host.innerHTML=`
+      <div class="tabs">
+        <button class="tab-btn" id="tBuy" aria-selected="${TICKET.side==='Buy'}">Buy</button>
+        <button class="tab-btn" id="tSell" aria-selected="${TICKET.side==='Sell'}">Sell</button>
+      </div>
+      <div class="section kv mono"><div>Instrument</div><div style="font-weight:700;text-align:right">${ACTIVE.name}</div></div>
+      <div class="section kv mono"><div>Best Bid</div><div id="kvBestBid" class="right" style="cursor:pointer;text-decoration:underline dotted">${fmt(bestBid)}</div><div>Best Ask</div><div id="kvBestAsk" class="right" style="cursor:pointer;text-decoration:underline dotted">${fmt(bestAsk)}</div></div>
+      <div class="section">
+        <div class="row" style="gap:6px;flex-wrap:wrap">
+          <button id="tST" class="pill" aria-pressed="${TICKET.st}">StatTrak®</button>
+          ${EXTS.map(ext=>`<button class="pill tExt" data-ext="${ext}" aria-pressed="${ext===TICKET.ext()}">${ext.replace('-', '‑')}</button>`).join('')}
+        </div>
+      </div>
+      <div class="section">
+        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field"><label>Order Type</label><select id="tType"><option ${TICKET.type==='Limit'?'selected':''}>Limit</option><option ${TICKET.type==='Market'?'selected':''}>Market</option></select></div>
+          <div class="field mono"><label>Price</label><div class="row" style="gap:6px"><button class="btn" id="pxMinus">−</button><input id="tPrice" type="number" step="0.01" min="0" value="${TICKET.type==='Market'?'':TICKET.price}"><button class="btn" id="pxPlus">+</button></div></div>
+          <div class="field mono"><label>Qty</label><input id="tQty" type="number" min="1" value="${TICKET.qty}"></div>
+          <div class="mr-auto"></div>
+          <button class="btn" id="tPreview">Preview</button>
+          <button class="btn primary" id="tSubmit">Submit ${TICKET.side} Order</button>
+        </div>
+        <div class="muted mono" style="margin-top:6px;font-size:12px">Available: ${fmt(computeAvailable(balance,reserved))}</div>
+      </div>`;
+
+      // events
+      $('#tBuy').onclick=()=>{TICKET.side='Buy'; renderTicket();};
+      $('#tSell').onclick=()=>{TICKET.side='Sell'; renderTicket();};
+      $('#tType').onchange=(e)=>{TICKET.type=e.target.value; renderTicket();};
+      $('#tPrice').oninput=(e)=>{ TICKET.price=parseFloat(e.target.value||'0'); };
+      $('#pxMinus').onclick=()=>{ const i=$('#tPrice'); const v=parseFloat(i.value||'0')||0; i.value=(v-0.05>0?v-0.05:0).toFixed(2); i.dispatchEvent(new Event('input')); };
+      $('#pxPlus').onclick=()=>{ const i=$('#tPrice'); const v=parseFloat(i.value||'0')||0; i.value=(v+0.05).toFixed(2); i.dispatchEvent(new Event('input')); };
+      $('#tQty').oninput=(e)=>{ TICKET.qty=Math.max(1, parseInt(e.target.value||'1',10)); };
+      $('#tST').onclick=()=>{ TICKET.st=!TICKET.st; renderTicket(); };
+      $$('.tExt').forEach(b=> b.onclick=()=>{ TICKET.ext=()=>b.getAttribute('data-ext'); renderTicket(); });
+      $('#kvBestBid').onclick=()=>{ if(TICKET.type==='Limit'){ $('#tPrice').value=bestBid.toFixed(2); $('#tPrice').dispatchEvent(new Event('input')); }};
+      $('#kvBestAsk').onclick=()=>{ if(TICKET.type==='Limit'){ $('#tPrice').value=bestAsk.toFixed(2); $('#tPrice').dispatchEvent(new Event('input')); }};
+      $('#tPreview').onclick=()=>{ const est = (TICKET.type==='Market' ? (TICKET.side==='Buy'?bestAsk:bestBid) : TICKET.price) * TICKET.qty; toast('Preview', `${TICKET.side} ${TICKET.qty} @ ${fmt(est/TICKET.qty)} = ${fmt(est)}`); };
+      $('#tSubmit').onclick=()=> submitTicket();
+    }
+
+    function submitTicket(){ const {asks,bids}=synthBook(ACTIVE.name,TICKET.st,TICKET.ext()); const bestAsk=asks[0]?.price||0; const bestBid=bids[0]?.price||0; const px = TICKET.type==='Market' ? (TICKET.side==='Buy'?bestAsk:bestBid) : TICKET.price; if(!px||px<=0) return toast('Enter a valid price');
+      if(TICKET.side==='Buy'){
+        const avail=computeAvailable(balance,reserved); const need=px*TICKET.qty; if(need>avail) return toast('Insufficient balance', `Need ${fmt(need)}, have ${fmt(avail)}`);
+        if(TICKET.type==='Market'){ balance-=need; inventory.unshift({ id:rid(), name:`${ACTIVE.name}${TICKET.st?' (ST)':''}`, weapon:'', exterior:TICKET.ext(), float:0, price:px, img:ACTIVE.img, rarity:ACTIVE.rarity }); toast('Bought (demo)', `${TICKET.qty} × ${ACTIVE.name} @ ${fmt(px)}`); }
+        else{ const res=placeBid(`${ACTIVE.name} ${TICKET.st?'(ST)':''} ${TICKET.ext()}`, px, TICKET.qty); if(!res.ok) return toast('Insufficient balance'); toast(res.filled?'Filled (demo)':'Bid placed (demo)'); }
+      } else { // Sell
+        const invIdx=inventory.findIndex(i=> i.name.startsWith(ACTIVE.name)); if(invIdx===-1) return toast('No inventory', 'You do not own this item');
+        const item=inventory[invIdx]; const p=px; inventory.splice(invIdx,1); orders.unshift({ id:rid(), side:'Ask', skin:item.name, price:p, qty:1, status:'Open' }); toast('Ask placed (demo)', `${item.name} @ ${fmt(p)}`);
+      }
+      renderBalance(); renderPanes(); renderWatchlist(); saveState(); }
+
+    // ---------- Item Sheet (with variant order book + gallery) ----------
+    const EXTS_ALL=["Factory New","Minimal Wear","Field-Tested","Well-Worn","Battle-Scarred"];
+    let SHEET = { name:null, st:false, exterior:"Field-Tested", imgs:[] };
+    function imagesFor(item){ const base=item.img.replace('/640/360',''); return [item.img, `https://picsum.photos/seed/${encodeURIComponent(item.name+'-a')}/640/360`, `https://picsum.photos/seed/${encodeURIComponent(item.name+'-b')}/640/360`, `https://picsum.photos/seed/${encodeURIComponent(item.name+'-c')}/640/360`]; }
+
+    function openItemSheet(item){ SHEET.name=item.name; SHEET.st=false; SHEET.exterior=item.exterior; SHEET.imgs=imagesFor(item);
+      $('#sheetTitle').textContent=item.name; const rar=`rar-${item.rarity.replaceAll(' ','_')}`; $('#sheetRarity').className=`badge rar ${rar}`; $('#sheetRarity').textContent=item.rarity; $('#sheetImg').src=item.img; $('#sheetImg').alt=item.name;
+      // thumbs
+      const th=$('#sheetThumbs'); th.innerHTML=''; SHEET.imgs.forEach((src,i)=>{ const im=document.createElement('img'); im.src=src; im.alt='thumb'; im.className=i===0?'active':''; im.onclick=()=>{ $$('#sheetThumbs img').forEach(x=>x.classList.remove('active')); im.classList.add('active'); $('#sheetImg').src=src; }; th.appendChild(im); });
+      // exterior pills
+      const holder=$('#extPills'); holder.innerHTML=''; EXTS_ALL.forEach(ext=>{ const b=document.createElement('button'); b.className='pill'; b.setAttribute('aria-pressed', ext===SHEET.exterior ? 'true':'false'); b.textContent=ext.replace('-', '‑'); b.onclick=()=>{ SHEET.exterior = ext; updateSheet(); }; holder.appendChild(b); });
+      $('#toggleST').setAttribute('aria-pressed','false');
+      updateSheet();
+      $('#itemSheet').showModal();
+    }
+
+    function updateSheet(){ $$('#extPills .pill').forEach(b=> b.setAttribute('aria-pressed', String(b.textContent.replace('‑','-')===SHEET.exterior)) ); $('#variantLabel').textContent=`${SHEET.st? 'StatTrak® ' : ''}${SHEET.exterior}`; const {asks,bids}=synthBook(SHEET.name, SHEET.st, SHEET.exterior); renderBookTo($('#sheetAsks'), asks); renderBookTo($('#sheetBids'), bids); $('#sheetLowest').textContent=fmt(asks[0]?.price||0); $('#sheetHighest').textContent=fmt(bids[0]?.price||0); const vol=Math.floor((seededRng(SHEET.name + '|vol')()*40)+10); $('#sheetVol').textContent = `${vol}`; const mid=(asks[0]?.price + bids[0]?.price)/2 || baseFor(SHEET.name); $('#sheetBidInput').value=(bids[0]?.price || mid).toFixed(2); }
+
+    $('#toggleST').onclick = ()=>{ SHEET.st=!SHEET.st; $('#toggleST').setAttribute('aria-pressed', String(SHEET.st)); updateSheet(); };
+    $('#sheetBidMinus').onclick = ()=>{ const i=$('#sheetBidInput'); i.value = Math.max(0, parseFloat(i.value||'0') - 0.05).toFixed(2); };
+    $('#sheetBidPlus').onclick = ()=>{ const i=$('#sheetBidInput'); i.value = (parseFloat(i.value||'0') + 0.05).toFixed(2); };
+    $('#sheetPlaceBid').onclick = ()=>{ const p=parseFloat($('#sheetBidInput').value||'0'); const res=placeBid(`${SHEET.name} ${SHEET.st?'(ST)':''} ${SHEET.exterior}`, p); if(res.ok) toast(res.filled? 'Filled instantly (demo)':'Bid placed (demo)', `Variant: ${SHEET.st?'ST, ':''}${SHEET.exterior}`); else toast('Insufficient balance', `Available: ${fmt(computeAvailable(balance, reserved))}.`); renderAll(); };
+    $('#sheetBuyNow').onclick = ()=>{ const {asks}=synthBook(SHEET.name, SHEET.st, SHEET.exterior); const best=asks[0]; if(!best) return; const avail=computeAvailable(balance, reserved); if(best.price>avail) return toast('Insufficient balance','Add funds or place a bid.'); balance-=best.price; inventory.unshift({ id:rid(), name:`${SHEET.name}${SHEET.st?' (ST)':''}`, weapon:'', exterior:SHEET.exterior, float:0.00, price:best.price, img:$('#sheetImg').src, rarity:$('#sheetRarity').textContent }); toast('Purchased (demo)', `${SHEET.name} • ${SHEET.exterior}${SHEET.st?' • ST':''}`); renderAll(); };
+    $('#closeSheet').onclick=()=> $('#itemSheet').close();
+
+    // ---------- Simple orderbook (secondary tab) ----------
+    function renderOrderbook(){ const rows=$('#bookRows'); rows.innerHTML=''; bestAsks(listings).slice(0,8).forEach(a=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><div class="row" style="gap:8px;align-items:center"><img src="${a.img}" alt="" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);object-fit:cover"/>${a.name}</div><div class="muted" style="font-size:12px">${a.exterior} • Float ${a.float.toFixed(2)}</div></td><td class="right mono" style="font-weight:700">${fmt(a.price)}</td><td class="right"><input class="mono" type="number" step="0.01" min="0" value="${a.price.toFixed(2)}" style="width:90px"/></td><td class="right"><button class="btn primary">Bid</button></td>`; const input=tr.querySelector('input'); tr.querySelector('button').onclick=()=>{ const price=parseFloat(input.value||'0'); const res=placeBid(a.name,price); if(res.ok){ toast(res.filled?'Filled instantly (demo)':'Bid placed (demo)'); renderAll(); } else toast('Insufficient balance', `Available: ${fmt(computeAvailable(balance,reserved))}.`); }; rows.appendChild(tr); }); const my=$('#orderRows'); my.innerHTML=''; orders.forEach(o=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td style="color:${o.side==='Bid'?'var(--accent-2)':'#ff7a7a'}">${o.side}</td><td>${o.skin}</td><td class="right mono">${fmt(o.price)}</td><td class="right mono">${o.qty}</td><td class="right">${o.status}</td>`; my.appendChild(tr); }); if(!orders.length){ const tr=document.createElement('tr'); tr.innerHTML=`<td colspan="5" style="text-align:center;color:var(--muted);padding:14px">No orders yet.</td>`; my.appendChild(tr); } }
+
+    // ---------- Inventory ----------
+    function renderInventory(){ const host=$('#inventoryList'); host.innerHTML=''; if(!inventory.length){ host.innerHTML='<div class="muted">No items. Buy on Market or deposit from Steam.</div>'; return;} inventory.forEach(item=>{ const row=document.createElement('div'); row.className='row'; row.style.cssText='gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--surface)'; row.innerHTML=`<img src="${item.img}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover"/><div class="mr-auto"><div style="font-weight:650">${item.name} <span class="badge rar rar-${item.rarity.replaceAll(' ','_')}">${item.rarity}</span></div><div class="muted" style="font-size:12px">${item.exterior} • Float ${item.float.toFixed(2)}</div></div><div class="field" style="margin:0"><label style="font-size:12px">Ask price</label><input class="mono" type="number" step="0.01" min="0" style="width:120px"/></div><button class="btn danger">Ask</button>`; const input=row.querySelector('input'); row.querySelector('button').onclick=()=>{ const p=parseFloat(input.value||'0'); if(!p||p<=0) return toast('Enter a valid ask'); placeAsk(item,p); toast('Listed (demo)', `${item.name} ${fmt(p)}`); renderAll(); }; host.appendChild(row); }); }
+
+    // ---------- Common actions ----------
+    function placeBid(skinName, price, qty=1){ const need=price*qty; const avail=computeAvailable(balance,reserved); if(need>avail) return {ok:false, reason:'Insufficient'}; const id=rid(); orders.unshift({id,side:'Bid',skin:skinName,price,qty,status:'Open'}); reserved+=need; const matchIdx=listings.findIndex(l=> l.name===skinName && l.price<=price); if(matchIdx>-1){ const match=listings.splice(matchIdx,1)[0]; orders=orders.map(o=> o.id===id?{...o,status:'Filled'}:o); reserved-=match.price; balance-=match.price; inventory.unshift(match); saveState(); return {ok:true, filled:true}; } saveState(); return {ok:true, filled:false}; }
+    function placeAsk(item, price){ inventory=inventory.filter(i=>i.id!==item.id); orders.unshift({ id:rid(), side:'Ask', skin:item.name, price, qty:1, status:'Open' }); saveState(); }
+
+    // ---------- Dialogs ----------
+    const bidDialog=$('#bidDialog'); let dialogSkin=null; function openBidDialog(skin){ dialogSkin=skin; $('#bidPrice').value=skin.price.toFixed(2); bidDialog.showModal(); } $('#cancelBid').onclick=()=>bidDialog.close(); $('#confirmBid').onclick=()=>{ const p=parseFloat($('#bidPrice').value||'0'); const res=placeBid(dialogSkin.name,p); if(res.ok){ toast(res.filled?'Filled instantly (demo)':'Bid placed (demo)'); } else toast('Insufficient balance', `Available: ${fmt(computeAvailable(balance,reserved))}.`); bidDialog.close(); renderAll(); };
+
+    // ---------- Theme & header buttons ----------
+    const themeKey='sx_theme'; const savedTheme=localStorage.getItem(themeKey); if(savedTheme) document.body.dataset.theme=savedTheme; else document.body.dataset.theme='midnight'; $('#themeToggle').onclick=()=>{ const next=document.body.dataset.theme==='midnight'?'aurora':'midnight'; document.body.dataset.theme=next; localStorage.setItem(themeKey,next); };
+    $('#docsBtn').onclick=()=> toast('Docs (demo)','This would open documentation.');
+    $('#connectBtn').onclick=()=> toast('Connect Steam (demo)','OpenID flow would start here.');
+
+    // ---------- Misc ----------
+    $('#wlSearch').addEventListener('input', renderWatchlist);
+    $('#sendOffer').onclick=()=> toast('Sent (demo)','Trade offer submitted to bot.');
+
+    // ---------- Dev sanity tests ----------
+    console.groupCollapsed('SkinXchange dev tests');
+    console.assert(typeof fmt(0) === 'string', 'fmt returns string');
+    console.assert(fmt(0).length > 0, 'fmt not empty');
+    console.assert(computeAvailable(100,30)===70, 'available 100-30 = 70');
+    console.assert(computeAvailable(50,60)===0, 'available clamps at 0');
+    const testAsks = bestAsks([
+      { ...listings[0], id:'t1', name:'AK-47 | Redline', price:50 },
+      { ...listings[0], id:'t2', name:'AK-47 | Redline', price:45 },
+      { ...listings[1], id:'t3', name:'AWP | Asiimov', price:120 },
+    ]);
+    console.assert(testAsks[0].name.includes('AK-47') && testAsks[0].price===45, 'best ask picks lowest per skin');
+    console.assert(testAsks.length===2, 'dedup by skin name');
+    const tb = (function(){ const {asks,bids}=synthBook('AK-47 | Redline', false, 'Field-Tested'); return {a:asks.length,b:bids.length,ok:asks[0].price<=asks[9].price && bids[0].price>=bids[9].price}; })();
+    console.assert(tb.a===10 && tb.b===10 && tb.ok, 'book shape + ordering');
+    console.groupEnd();
+
+    // ---------- Init ----------
+    function renderAll(){ renderBalance(); renderWatchlist(); renderPanes(); renderOrderbook(); renderInventory(); renderTicket(); saveState(); }
+    renderAll();
+    setTab('tab-market');
+  </script>
+</body>
+</html>
